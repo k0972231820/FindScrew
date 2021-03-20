@@ -59,25 +59,10 @@ int main() {
 		//if(videoFrame.empty()){
 		//	break;
 		//}
-	videoFrame = imread("E:\\�v���B�z��\\Screw.PNG");
-
-	mid = time(NULL);
-	//cout <<mid - start << endl;
-	//if( GetAsyncKeyState( 'A' ) & 0x8000 ) {
+	videoFrame = imread("E:\\影像處理圖\\Screw.PNG");
 	//ContourNut(videoFrame);
 	ContourScrew(videoFrame);
-	cout << "enter A" << endl;
-	//}
-	//if (GetAsyncKeyState( 'B' ) & 0x8000) {
-	//	cout << "Nut: " << endl;
-	//	for ( int i = 0 ; i < nut.size() ; i++ )
-	//		cout << nut.at(i).x << " " << nut.at(i).y << endl;
-	//	cout << "Screw: " << endl;
-	//	for ( int i = 0 ; i < nut.size() ; i++ )
-	//		cout << screw.at(i).x << " " << screw.at(i).y << endl;
-	//	cout << endl;
-	//}
-	//circle(videoFrame, Point2f(xsliderValue, ysliderValue),5, Scalar(0,255,0),5);
+
 	imshow("frame", videoFrame);
 	//waitKey(33);
 	//}
@@ -178,8 +163,8 @@ float getDistance(Point2f point1, Point2f point2)
 
 void WriteFile(Mat img) {
 	fstream file;
-	file.open("E:\\LAB602���\\FindScrew\\position.txt", ios::out | ios::ate);
-	if (!file) {//�p�G�}���ɮץ��ѡAfp��0�F���\�Afp���D0
+	file.open("E:\\LAB602資料\\FindScrew\\position.txt", ios::out | ios::ate);
+	if (!file) {//如果開啟檔案失敗，fp為0；成功，fp為非0
 		cout << "Fail to open file: " << endl;
 		return;
 	}
@@ -209,23 +194,20 @@ void WriteFile(Mat img) {
 void ContourNut(Mat img) {
 	Mat temp = img.clone();
 	Mat threshold_output, src_gray;
-	vector<vector<Point>> contours(10000);
-	vector<Vec4i> hierarchy(10000);
+	vector<cv::vector<cv::Point> > contours(10000);
+	cv::vector<Vec4i> hierarchy(10000);
 	int thresh = 70;
 	int max_thresh = 255;
 	RNG rng(12345);
 
 	cvtColor(img, src_gray, CV_RGB2GRAY);
-	//blur(src_gray, src_gray, Size(3,3));
+	//blur(src_gray, src_gray, Size(3, 3));
 	GaussianBlur(src_gray, src_gray, Size(9, 9), 2, 2);
-	Canny(src_gray, threshold_output, 50, 150, 3);
+	imshow("GaussianBlur", src_gray);
+
 	/// Detect edges using Threshold
 	threshold(src_gray, threshold_output, thresh, 255, THRESH_BINARY);
-	for (int i = 0; i < threshold_output.rows; i++)
-		for (int j = 0; j < threshold_output.cols; j++) {
-			if (threshold_output.at<uchar>(i, j) == 255) threshold_output.at<uchar>(i, j) = 0;
-			else threshold_output.at<uchar>(i, j) = 255;
-		}
+	imshow("threshold", threshold_output);
 
 	/// Find contours
 	findContours(threshold_output, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
@@ -255,8 +237,8 @@ void ContourNut(Mat img) {
 	     for( int j = 0; j < 4; j++ ) {
 		     //if ( getDistance(rect_points[0], rect_points[1]) > 40 || getDistance(rect_points[1], rect_points[2]) > 40 )
 		         //line( drawing, rect_points[j], rect_points[(j+1)%4], color, 1, 8 );
-		     if ( (getDistance(rect_points[0], rect_points[1]) > 10 && getDistance(rect_points[0], rect_points[1]) < 20)
-		  	    && (getDistance(rect_points[1], rect_points[2]) > 10 && getDistance(rect_points[1], rect_points[2]) < 20) ) {
+		     if ( (getDistance(rect_points[0], rect_points[1]) > 10 && getDistance(rect_points[0], rect_points[1]) < 23)
+		  	    && (getDistance(rect_points[1], rect_points[2]) > 10 && getDistance(rect_points[1], rect_points[2]) < 23) ) {
 		  		Point2f center = Point2f((rect_points[0].x+rect_points[2].x)/2, (rect_points[0].y+rect_points[2].y)/2);
 		  		//if (center.x >= 875 && center.x <= 1200 && center.y >= 440 && center.y <= 805) {
 		  			line( temp, rect_points[j], rect_points[(j+1)%4], color, 2, 8 );
@@ -277,25 +259,27 @@ void ContourScrew(Mat img) {
 	Mat threshold_output, src_gray;
 	vector<vector<Point> > contours(10000);
 	vector<Vec4i> hierarchy(10000);
-	int thresh = 75;
+	int thresh = 110;
 	int max_thresh = 255;
 	RNG rng(12345);
 
 	cvtColor(img, src_gray, CV_RGB2GRAY);
 	//blur(src_gray, src_gray, Size(3, 3));
-	GaussianBlur( src_gray, src_gray, Size(9, 9), 2, 2 );
-	Canny(src_gray, src_gray, 80, 150, 3);
+	GaussianBlur( src_gray, src_gray, Size(9, 9), 2, 2);
+	imshow("GaussianBlur", src_gray);
+
 	
 	/// Detect edges using Threshold
 	threshold(src_gray, threshold_output, thresh, 255, THRESH_BINARY);
-	/*for ( int i = 0 ; i < threshold_output.rows ; i++ )
-		for ( int j = 0 ; j < threshold_output.cols ; j++ ) {
-			if ( threshold_output.at<uchar>(i,j) == 255 ) threshold_output.at<uchar>(i,j) = 0;
-			else threshold_output.at<uchar>(i,j) = 255;
-		}
-	*/
+	imshow("threshold", threshold_output);
+	//獲取自定義核
+	Mat element = getStructuringElement(MORPH_RECT, Size(3, 3)); //第一個引數MORPH_RECT表示矩形的卷積核，當然還可以選擇橢圓形的、交叉型的
+	//膨脹操作
+	erode(threshold_output, threshold_output, element);
+	imshow("threshold2", threshold_output);
+
 	/// Find contours
-	findContours(threshold_output, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
+	findContours(threshold_output, contours, hierarchy, CV_RETR_EXTERNAL/*CV_RETR_CCOMP*/, CV_CHAIN_APPROX_SIMPLE);
 
 	/// Approximate contours to polygons + get bounding rects and circles
 	vector<vector<Point> > contours_poly(contours.size());
@@ -321,16 +305,14 @@ void ContourScrew(Mat img) {
 		Point2f rect_points[4];
 		minRect[i].points(rect_points);
 		for (int j = 0; j < 4; j++) {
-			//if ( getDistance(rect_points[0], rect_points[1]) > 40 || getDistance(rect_points[1], rect_points[2]) > 40 )
-				//line( temp, rect_points[j], rect_points[(j+1)%4], color, 2, 8 );
-			if ((getDistance(rect_points[0], rect_points[1]) > 5 && getDistance(rect_points[0], rect_points[1]) < 40) &&
-				(getDistance(rect_points[1], rect_points[2]) > 90 && getDistance(rect_points[1], rect_points[2]) < 150)) {
+			if ((getDistance(rect_points[0], rect_points[1]) > 2 && getDistance(rect_points[0], rect_points[1]) < 50) &&
+				(getDistance(rect_points[1], rect_points[2]) > 60 && getDistance(rect_points[1], rect_points[2]) < 150)) {
 				Point2f center = Point2f((rect_points[0].x + rect_points[2].x) / 2, (rect_points[0].y + rect_points[2].y) / 2);
 				line(temp, rect_points[j], rect_points[(j + 1) % 4], color, 2, 8);
 				screw.push_back(center);
 			}
-			if ((getDistance(rect_points[0], rect_points[1]) > 90 && getDistance(rect_points[0], rect_points[1]) < 150) &&
-				(getDistance(rect_points[1], rect_points[2]) > 5 && getDistance(rect_points[1], rect_points[2]) < 40)) {
+			if ((getDistance(rect_points[0], rect_points[1]) > 60 && getDistance(rect_points[0], rect_points[1]) < 150) &&
+				(getDistance(rect_points[1], rect_points[2]) > 2 && getDistance(rect_points[1], rect_points[2]) < 50)) {
 				Point2f center = Point2f((rect_points[0].x + rect_points[2].x) / 2, (rect_points[0].y + rect_points[2].y) / 2);
 				line(temp, rect_points[j], rect_points[(j + 1) % 4], color, 2, 8);
 				screw.push_back(center);
