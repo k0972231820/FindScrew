@@ -4,7 +4,7 @@
 FindScrew
 ![image](https://user-images.githubusercontent.com/8476048/111864181-7a9cd700-899a-11eb-9bec-68a45511a975.png)
 
-<p style="font-size:16;">●找出螺絲</p>
+<p style="font-size:25;">●找出螺絲</p>
 <br>
 首先利用GaussianBlur去除影像雜訊
 
