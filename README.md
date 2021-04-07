@@ -4,7 +4,7 @@
 FindScrew
 ![image](https://user-images.githubusercontent.com/8476048/111864181-7a9cd700-899a-11eb-9bec-68a45511a975.png)
 
-<p style="font-size:25;">●找出螺絲</p>
+<h2>●找出螺絲</h2>
 <br>
 首先利用GaussianBlur去除影像雜訊
 
@@ -36,9 +36,8 @@ FindNut
 
 ![image](https://user-images.githubusercontent.com/8476048/111644682-0697ed00-883b-11eb-88de-b983667f237e.png)
 
-●找出螺帽
-
-
+<h2>●找出螺帽<\h2>
+<br>
 利用與螺絲類似的作法，並找出較小的輪廓
 
 ![image](https://user-images.githubusercontent.com/8476048/112146554-ad530380-8c16-11eb-896e-17a36ca6e0f5.png)
